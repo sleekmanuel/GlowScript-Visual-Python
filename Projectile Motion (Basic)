@@ -1,0 +1,35 @@
+GlowScript 1.1 VPython
+
+f1=series(color=color.blue,label='velocity')
+floor=box(pos=vec(0,-.02,0), size=vec(2,.02,.1))
+ball=sphere(pos=vec(-1,0,0),radius=0.02, color=color.blue,make_trail=True)
+g=vec(0,-9.8,0)
+ball.m=0.5
+
+v0=4.0 #changing the initial velocity causes a change in the final position of x
+theta = 38
+ball.p=ball.m*v0*vec(cos(theta*pi/180),sin(theta*pi/180),0)
+ball.v=(ball.p/ball.m)#Velocity
+t=0
+dt=0.001 #dt is a numerical representation of real-time on python, changing dt to 0.1 skips time in the screen
+scene.background=color.yellow
+while ball.pos.y>=0:
+    rate(500)
+    Fnet = ball.m*(g)
+    ball.p = ball.p+Fnet*dt
+    ball.pos = ball.pos+(ball.p/ball.m)*dt 
+    ball.v=ball.v-(g)*dt
+    t+=dt
+    f1.plot(t,ball.pos.y)
+    
+print("Position of the ball in y dir: "+ball.pos.y)
+
+print("time of flight: "+t)
+
+print("Final Velocity: "+ball.v.y)
+
+print("position of ball in x dir: "+ball.pos.x)
+
+mag=sqrt((ball.v.x)**2+(ball.v.y)**2)
+
+print("Magnitude of final Velocity: "+ mag) 
