@@ -1,0 +1,70 @@
+GlowScript 1.1 VPython
+Lz=.3
+print(" change ball position by clicking")
+# Simulation Background
+scene=display(x=0, y=0, width=1000, height=500, center=vec(1,0,0))
+field=box(pos=vec(0,0,0),color=color.green, size=vec(12,.02,5))
+rod1=cylinder(pos=vec(5,0,1), size=vec(1,.15,.1), axis=vec(0,1,0))#left rod
+rod2=cylinder(pos=vec(5,0,-1), size=vec(1,.15,.1), axis=vec(0,1,0))#right rod
+rod3=cylinder(pos=vec(5,1,-1.04), size=vec(2.1,.15,.1), axis=vec(0,0,5))#top rod
+rod4=cylinder(pos=vec(5,0,-2.5), size=vec(5,.09,.1), axis=vec(0,0,5))
+rod5=cylinder(pos=vec(5,0,-2.4), size=vec(10,.09,.1), axis=vec(-1,0,0))
+rod6=cylinder(pos=vec(5,0,2.4), size=vec(10,.09,.1), axis=vec(-1,0,0))
+rod7=cylinder(pos=vec(5,0,-1.5), size=vec(2,.09,.1), axis=vec(-1,0,0))
+rod8=cylinder(pos=vec(5,0,1.5), size=vec(2,.09,.1), axis=vec(-1,0,0))
+rod9=cylinder(pos=vec(3,0,1.5), size=vec(3,.09,.1), axis=vec(0,0,-1))
+ball=sphere(pos=vec(-4,.1,0),radius=0.1, color=color.yellow,make_trail=True)
+guy=box(pos=vec(5,Lz,.7), radius=.1, size=vec(.1,1,.5), color=color.red)
+g = vec(0,-9.8,0)
+ball.m = 2.0
+theta = 0
+v0 = 10.0 
+print ('theta = ', theta)
+# Slider for angle of projection
+def setsize():
+    global size
+    theta = $("#size_slider").slider("value")
+    print_options(clear=True)
+    print('ball angle = ', theta)
+    ball.p=ball.m*v0*vec(cos(theta*pi/180),sin(theta*pi/180),0)   
+scene.caption.text("Vary the angle of the ball: ")
+$('<div id="size_slider"></div>').appendTo(scene.caption).css(width="350px")
+$(def ():
+    $("#size_slider").slider(value=0, min=0, max=150, range="min", slide=setsize, change=setsize)
+)
+
+def dragging(ev):
+  loc = scene.mouse.project(normal=vec(0,1.5,0))
+  ball.pos = loc
+ 
+scene.bind("mousedown mousemove mouseup", dragging)
+scene.bind("Dont forget to change the angle of the ball before dragging", dragging)
+print('done dragging')
+scene.pause("Click/drag ball anywhere to play", wait)
+k = 9
+ball.v = (ball.p/ball.m)
+t = 0
+dt = 0.01 
+dth =.01
+omega = vec(5.5,0,0)# in rads/secs
+
+guy.p = vec(0,0,-1)
+guy.m=1.0
+guy.a=vec(0,0,-1)
+#mechanics of projection and calculation of magus effect
+while ball.pos.y >= 0 and ball.pos != guy.pos:
+    rate(110)
+    if guy.pos.z > rod2.pos.z and guy.pos.z < rod1.pos.z:
+        guy.pos.z = -guy.pos.z
+    Fmag = 0.47*cross(-ball.v,omega)
+    ball.rotate(angle=pi/4, axis=vec(-1,0,0), origin=ball.pos)
+    Fnet = (ball.m*g) + Fmag
+    ball.p = ball.p + Fnet*dt
+    ball.pos = ball.pos+(ball.p/ball.m)*dt 
+    ball.v = ball.v+(g*dt)
+    t+=dt
+    print ("Magnus Force ", mag(Fmag))
+if ball.pos.x>rod3.pos.x and ball.pos.y<rod3.pos.y and ball.pos.z>rod2.pos.z and ball.pos.z<rod1.pos.z:
+       print ("Goal!!!!!!")   
+else:
+    print(" You totally Suck!!!")
