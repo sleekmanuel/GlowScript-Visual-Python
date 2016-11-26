@@ -1,0 +1,59 @@
+GlowScript 1.1 VPython
+F1=series()
+#set animation window attributes
+scene.center=vec(0,2,0)
+scene.range = 2.5
+
+r=0.5   #gas container radius
+hi=2.5  #initial height of lid
+th=0.5  #thickness of lid
+cylinder(pos=vec(0,0,0), axis=vec(0,1,0), size=vec(hi+th/2,2*r,2*r), color=color.blue, opacity=0.5)
+lid=cylinder(pos=vec(0,hi,0), axis=vec(0,1,0), size=vec(th,2*(r-0.1),2*(r-0.1)), color=color.red)
+rod=cylinder(pos=vec(0,hi+th,0), axis=vec(0,1,0), size=vec(0.8, 0.1, 0.1), color=color.red)
+
+
+#animation will not start until user clicks with mouse
+scene.pause("Click anywhere to compress", wait)
+
+print('isothermal compression')
+scene.background=color.black
+#initial volume in gas container
+Vi=pi*r**2*lid.pos.y
+print('initial volume = ', Vi, ' m^3')
+
+#final volume in gas container
+hf=0.5 #final height of lid
+Vf=pi*r**2*hf
+print('final volume = ', Vf, ' m^3')
+
+n=2      #moles of gas in container
+R=8.314  #gas constant
+Temp=300 #temperature of gas
+print(n, ' moles of gas')
+print('Temperature = ', Temp, ' K')
+
+dh=(hi-hf)/100 #For W and Wtheory to agree, dh has to be really small
+dV=(Vf-Vi)/100
+W=0 #work
+V=Vi
+
+while V >= Vf:
+    rate(200)
+    #move lid and rod down
+    lid.pos.y=lid.pos.y-dh
+    rod.pos.y=rod.pos.y-dh
+    #calculate new volume
+    V=pi*r**2*lid.pos.y
+    #calculate new pressure from ideal gas law
+    P=(n*R*Temp)/V
+    #Calculate new work: W = W - P*dV
+    W=W-P*dV
+    rod.color=color.red #this line is just so that the loop will run. you can't end a loop with a comment an imcomplete line
+    F1.plot(V,P)
+
+print('Work = ', W, ' J')
+
+#do the integral on paper and get an exact theoretical expression for work
+# helpful: in glowscript, log(x) gives the natural logarithm of x
+Wtheory = -(n*R*Temp*(log(V)-log(Vi)))
+print('theoretical work value = ', Wtheory, ' J')
