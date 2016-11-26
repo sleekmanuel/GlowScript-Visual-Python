@@ -1,0 +1,41 @@
+GlowScript 1.1 VPython
+L0=0.1     #unstretched length
+holder=box(pos=vec(0,0,0), size=vec(0.1,0.005,0.1))
+ball=sphere(pos=vec(0,-L0,0), radius=0.02, color=color.red)
+spring=cylinder(pos=holder.pos, axis=ball.pos-holder.pos, radius=0.002)
+ball.m=0.1
+ball.p=vec(0,0,0)
+yt=series()
+
+k=15       #spring constant
+F0=0.4     #driving force constant, use F0=0 for undriven
+w=10       #angular frequency of driving force
+c=0.3     #damping constant
+print('driving angular frequency = ', w, ' rad/sec')
+
+#arrow attached to ball showing applied force
+#the 0.2 factor in the axis is just so the arrow isn't too large visually
+Favec=arrow(pos=ball.pos, shaftwidth=0.008, axis=vec(0,0.2*F0,0), color=color.blue)
+
+g=vec(0,-9.8,0)
+t=0
+dt=0.01
+
+while t<7:
+    rate(100)
+    L=ball.pos-holder.pos
+    yt.plot(t,ball.pos.y)
+    #gravity, spring, damping, and applied forces
+    #Fa should be a vector that points in the y direction
+    Fg = ball.m*g
+    Fs = -k*(mag(L)-L0)*norm(L)
+    Fd =-c*(ball.p/ball.m)
+    Fa =vec(0,F0*cos(w*t),0)
+    Fnet=(Fg + Fs) + (Fd+Fa)
+    ball.p=ball.p + Fnet*dt
+    ball.pos=ball.pos + (ball.p/ball.m)*dt
+    spring.axis=ball.pos-holder.pos
+    Favec.pos=ball.pos
+    Favec.axis=Fa/4#add a Favec.axis= line to update the length of the applied force arrow
+    print(Fa)
+    t=t+dt
